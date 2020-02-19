@@ -17,6 +17,7 @@ from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.sampler import SubsetRandomSampler
 from sklearn.preprocessing import MultiLabelBinarizer
+from torchvision import transforms
 
 '''
 Global variables
@@ -46,16 +47,17 @@ class Train_dataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        img = Image.open(img_dir+'train'+str(idx)+'.jpg')
+        img = Image.open(self.img_dir+'train'+str(idx)+'.jpg')
         lables = self.hot_lables[idx]
         lables = torch.from_numpy(lables).float()
 
 
         if self.transform :
-            img = self.tarnsform(img)
+            img = self.transform(img)
 
 
         return img,lables
+
 class Test_dataset(Dataset):
     def __init__(self,):
         '''
