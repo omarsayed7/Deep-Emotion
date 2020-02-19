@@ -108,11 +108,28 @@ def train_val_split(train_dataset,val_size= 0.25):
 
 
 
-def eval_train_dataloader(validation_Data = True):
+def eval_train_dataloader(validation = True):
     '''
     Documentation
     '''
-    pass
+
+    transformation = transforms.Compose([transforms.ToTensor()])
+
+    dataset = Train_dataset(traincsv_file,'Train/',transformation)
+
+    imgg = dataset.__getitem__(5)[0]
+    lable = dataset.__getitem__(5)[1]
+
+    print(lable)
+
+    imgnumpy = imgg.numpy()
+    imgt = imgnumpy.squeeze()
+    plt.imshow(imgt)
+    plt.show()
+    #press Q to apply train_val split function
+    if validation :
+        train_val_split(dataset,0.2)
+
 
 class Deep_Emotion(nn.Module):
     def __init__(self):
