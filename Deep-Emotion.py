@@ -56,19 +56,35 @@ class Train_dataset(Dataset):
 
 
         return img,lables
-        
+
 class Test_dataset(Dataset):
-    def __init__(self,):
+    def __init__(self,csv_file,img_dir,transform):
         '''
         Documentation
         '''
-        pass
+        self.ohe = OneHotEncoder() #one hot encoder object
+        self.train_csv = pd.read_csv(csv_file)
+        self.hot_lables = self.ohe.fit_transform(self.train_csv[['emotion']]).toarray()
+        self.img_dir = img_dir
+        self.transform = transform
 
     def __len__(self):
-        return len()
+        return len(self.train_csv)
 
     def __getitem__(self,idx):
-        pass
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        img = Image.open(self.img_dir+'train'+str(idx)+'.jpg')
+        lables = self.hot_lables[idx]
+        lables = torch.from_numpy(lables).float()
+
+
+        if self.transform :
+            img = self.transform(img)
+
+
+        return img,lables
 
 def eval_train_dataloader(validation_Data = True):
     '''
