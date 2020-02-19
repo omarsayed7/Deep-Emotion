@@ -38,23 +38,16 @@ class Train_dataset(Dataset):
         self.hot_lables = self.ohe.fit_transform(self.train_csv[['emotion']]).toarray()
         self.img_dir = img_dir
         self.transform = transform
-
     def __len__(self):
         return len(self.train_csv)
-
     def __getitem__(self,idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
-
         img = Image.open(self.img_dir+'train'+str(idx)+'.jpg')
         lables = self.hot_lables[idx]
         lables = torch.from_numpy(lables).float()
-
-
         if self.transform :
             img = self.transform(img)
-
-
         return img,lables
 
 class Test_dataset(Dataset):
@@ -85,6 +78,35 @@ class Test_dataset(Dataset):
 
 
         return img,lables
+
+def train_val_split(train_dataset,val_size= 0.25):
+    '''
+    Documentation
+    '''
+    data_size = len(train_dataset)
+    print("data_size: ",data_size)
+
+    indices = list(range(data_size))
+
+    split_ammount = int(np.floor(val_size * data_size))
+    print("number of val_set: ",split_ammount)
+
+    np.random.seed(42)
+    np.random.shuffle(indices)
+    print("shuffled training set: ",indices)
+
+    train_indices, val_indices = indices[split_ammount:], indices[:split_ammountl]
+
+    print('number of training_indices: ',len(train_indices))
+    print('number of training_indices: ',len(train_indices))
+
+    print("========================================================")
+    print('training_indices: ',train_indices)
+    print('validation_indices: ',val_indices)
+
+
+
+
 
 def eval_train_dataloader(validation_Data = True):
     '''
