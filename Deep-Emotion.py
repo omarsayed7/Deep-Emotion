@@ -83,6 +83,7 @@ def train_val_split(train_dataset,val_size= 0.25):
     '''
     Documentation
     '''
+    print("===============================Train Validation Split===============================")
     data_size = len(train_dataset)
     print("data_size: ",data_size)
 
@@ -93,16 +94,17 @@ def train_val_split(train_dataset,val_size= 0.25):
 
     np.random.seed(42)
     np.random.shuffle(indices)
-    print("shuffled training set: ",indices)
+    #print("shuffled training set: ",indices)
 
-    train_indices, val_indices = indices[split_ammount:], indices[:split_ammountl]
+    train_indices, val_indices = indices[split_ammount:], indices[:split_ammount]
 
     print('number of training_indices: ',len(train_indices))
-    print('number of training_indices: ',len(train_indices))
+    print('number of training_indices: ',len(val_indices))
 
     print("========================================================")
-    print('training_indices: ',train_indices)
-    print('validation_indices: ',val_indices)
+    #print('training_indices: ',train_indices)
+    #print('validation_indices: ',val_indices)
+    return train_indices, val_indices
 
 
 
