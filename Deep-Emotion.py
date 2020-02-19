@@ -35,8 +35,7 @@ class Train_dataset(Dataset):
         '''
         self.ohe = OneHotEncoder() #one hot encoder object
         self.train_csv = pd.read_csv(csv_file)
-        self.lables = self.train_csv['emotion']
-        self.hot_lables = self.ohe.fit_transform([self.lables]).toarray()
+        self.hot_lables = self.ohe.fit_transform(self.train_csv[['emotion']]).toarray()
         self.img_dir = img_dir
         self.transform = transform
 
@@ -57,7 +56,7 @@ class Train_dataset(Dataset):
 
 
         return img,lables
-
+        
 class Test_dataset(Dataset):
     def __init__(self,):
         '''
