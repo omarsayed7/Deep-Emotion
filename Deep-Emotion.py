@@ -1,23 +1,34 @@
 '''
+[categories] : (0=Angry, 1=Disgust, 2=Fear, 3=Happy, 4=Sad, 5=Surprise, 6=Neutral)
 The following Code contains
 1- Dataloader for the network with train_val split
 2-class of the model layers
 3-train and validation loop
 4- testing loop and model evaluation
 '''
+'''
+[Note]
+If running on Windows and you get a BrokenPipeError, try setting
+the num_worker of torch.utils.data.DataLoader() to 0.
+'''
 import os
 import numpy  as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
+import torch.optim as optim
 
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.sampler import SubsetRandomSampler
-from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.preprocessing import OneHotEncoder
 from torchvision import transforms
+from tqdm import tqdm
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 '''
 Global variables
@@ -27,9 +38,12 @@ traincsv_file = 'Dataset/Kaggle/train.csv'
 testcsv_file = 'Dataset/Kaggle/test.csv'
 train_img_dir = 'Train/'
 test_img_dir = 'test/'
+epochs = 5
+lr = 0.001
 
-class Train_dataset(Dataset):
-    def __init__(self,csv_file,img_dir,transform):
+
+class Plain_Dataset(Dataset):
+    def __init__(self,csv_file,img_dir,datatype,transform):
         '''
         Documentation
         '''
@@ -38,28 +52,7 @@ class Train_dataset(Dataset):
         self.hot_lables = self.ohe.fit_transform(self.train_csv[['emotion']]).toarray()
         self.img_dir = img_dir
         self.transform = transform
-    def __len__(self):
-        return len(self.train_csv)
-    def __getitem__(self,idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-        img = Image.open(self.img_dir+'train'+str(idx)+'.jpg')
-        lables = self.hot_lables[idx]
-        lables = torch.from_numpy(lables).float()
-        if self.transform :
-            img = self.transform(img)
-        return img,lables
-
-class Test_dataset(Dataset):
-    def __init__(self,csv_file,img_dir,transform):
-        '''
-        Documentation
-        '''
-        self.ohe = OneHotEncoder() #one hot encoder object
-        self.train_csv = pd.read_csv(csv_file)
-        self.hot_lables = self.ohe.fit_transform(self.train_csv[['emotion']]).toarray()
-        self.img_dir = img_dir
-        self.transform = transform
+        self.datatype = datatype
 
     def __len__(self):
         return len(self.train_csv)
@@ -68,7 +61,7 @@ class Test_dataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        img = Image.open(self.img_dir+'train'+str(idx)+'.jpg')
+        img = Image.open(self.img_dir+self.datatype+str(idx)+'.jpg')
         lables = self.hot_lables[idx]
         lables = torch.from_numpy(lables).float()
 
@@ -106,10 +99,6 @@ def train_val_split(train_dataset,val_size= 0.25):
     #print('validation_indices: ',val_indices)
     return train_indices, val_indices
 
-
-
-
-
 def eval_train_dataloader(validation = True):
     '''
     Documentation
@@ -117,7 +106,7 @@ def eval_train_dataloader(validation = True):
 
     transformation = transforms.Compose([transforms.ToTensor()])
 
-    dataset = Train_dataset(traincsv_file,'Train/',transformation)
+    dataset = Plain_Dataset(csv_file=traincsv_file,img_dir = 'Train/',datatype = 'train',transform = transformation)
 
     imgg = dataset.__getitem__(5)[0]
     lable = dataset.__getitem__(5)[1]
@@ -132,20 +121,46 @@ def eval_train_dataloader(validation = True):
     if validation :
         train_val_split(dataset,0.2)
 
-
 class Deep_Emotion(nn.Module):
     def __init__(self):
         '''
         Documentation
         '''
-        super.__init__()
-    def forward():
-        pass
-    def STN():
-        pass
+        super(Deep_Emotion,self).__init__()
+        self.conv1 = nn.Conv2d(1,10,3)
+        self.conv2 = nn.Conv2d(10,10,3)
+        self.pool2 = nn.MaxPool2d(2,2)
+
+        self.conv3 = nn.Conv2d(10,10,3)
+        self.conv4 = nn.Conv2d(10,10,3)
+        self.pool4 = nn.MaxPool2d(2,2)
+
+        self.dropout = nn.Dropout2d()
+
+        self.fc1 = nn.Linear(810,50)
+        self.fc2 = nn.Linear(50,7)
+
+    def forward(self,input):
+        out = self.conv1(input)
+        out = F.relu(out)
+
+        out = self.conv2(out)
+        out = self.pool2(out)
+        out = F.relu(out)
+
+        out = self.conv3(out)
+        out = F.relu(out)
+
+        out = self.conv4(out)
+        out = self.pool4(out)
+        out = F.relu(out)
+
+        out = self.dropout(out)
+
+        out = self.fc1(out)
+        out = self.fc2(out)
+
+        return out
 
 def Train():
-    '''
-    Documentation
-    '''
     pass
