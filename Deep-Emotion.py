@@ -38,7 +38,7 @@ traincsv_file = 'Dataset/Kaggle/train.csv'
 testcsv_file = 'Dataset/Kaggle/test.csv'
 train_img_dir = 'Train/'
 test_img_dir = 'test/'
-epochs = 5
+epochs = 10
 lr = 0.001
 
 
@@ -104,7 +104,7 @@ def eval_train_dataloader(validation = True):
     Documentation
     '''
 
-    transformation = transforms.Compose([transforms.ToTensor()])
+    transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
 
     dataset = Plain_Dataset(csv_file=traincsv_file,img_dir = 'Train/',datatype = 'train',transform = transformation)
 
@@ -135,7 +135,7 @@ class Deep_Emotion(nn.Module):
         self.conv4 = nn.Conv2d(10,10,3)
         self.pool4 = nn.MaxPool2d(2,2)
 
-        self.dropout = nn.Dropout2d()
+        #self.dropout = nn.Dropout2d()
 
         self.fc1 = nn.Linear(810,50)
         self.fc2 = nn.Linear(50,7)
@@ -155,12 +155,73 @@ class Deep_Emotion(nn.Module):
         out = self.pool4(out)
         out = F.relu(out)
 
-        out = self.dropout(out)
-
+        out = F.dropout(out)
+        out = out.view(-1, 810) #####
         out = self.fc1(out)
         out = self.fc2(out)
 
         return out
 
 def Train():
-    pass
+    '''
+    Documentation
+    '''
+
+    '''
+    Load the data inform of iterator (Dataloader) but here we will use SubsetRandomSampler to split train into train and validation
+    '''
+    net = Deep_Emotion()
+    net.cuda()
+
+    transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
+    train_dataset = Plain_Dataset(csv_file=traincsv_file,img_dir = 'Train/',datatype = 'train',transform = transformation)
+
+    train_indices, validation_indices = train_val_split(train_dataset,0.2)
+
+    train_sampler = SubsetRandomSampler(train_indices)
+    val_sampler =  SubsetRandomSampler(validation_indices)
+
+    train_loader = DataLoader(train_dataset,batch_size=64,num_workers=0,sampler=train_sampler)
+    val_loader = DataLoader(train_dataset,batch_size=64,num_workers=0,sampler=val_sampler)
+
+
+    criterion = nn.CrossEntropyLoss()
+    optmizer = optim.Adam(net.parameters(), lr = lr)
+
+    for e in tqdm(range(epochs)):
+        train_loss = 0
+        val_loss = 0
+        # Train the model  #
+        net.train()
+        for data, lables in train_loader:
+            data, lables = data.cuda(), lables.cuda()
+            lables = torch.max(lables, 1)[1]
+
+            optmizer.zero_grad()
+
+            outputs = net(data)
+
+            loss = criterion(outputs,lables)
+            loss.backward()
+            optmizer.step()
+            train_loss += loss.item() * data.size(0)
+
+        # validate the model #
+        net.eval()
+        for data, lables in val_loader:
+            #
+            data, lables = data.cuda(), lables.cuda()
+            lables = torch.max(lables, 1)[1]
+            outputs = net(data)
+
+            loss = criterion(outputs, lables)
+
+            val_loss += loss.item() * data.size(0)
+
+        train_loss = train_loss/len(train_loader.sampler)
+        val_loss = val_loss/len(val_loader.sampler)
+        print('Epoch: {} \tTraining Loss: {:.8f} \tValidation Loss {:.8f}'.format(e+1, train_loss,val_loss))
+
+    torch.save(net.state_dict(), 'model_noSTN.pt')
+
+Train()
