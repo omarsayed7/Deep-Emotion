@@ -40,7 +40,7 @@ train_img_dir = 'Train/'
 validation_img_dir = 'validation/'
 test_img_dir = 'test/'
 
-epochs = 50
+epochs = 100
 lr = 0.005
 batchsize = 128
 
@@ -212,7 +212,7 @@ def Train():
         print('Epoch: {} \tTraining Loss: {:.8f} \tValidation Loss {:.8f} \tTraining Acuuarcy {:.3f}% \tValidation Acuuarcy {:.3f}%'
                                                             .format(e+1, train_loss,val_loss,np.mean(train_acc_epoch)*100,np.mean(val_acc_epoch)*100))
 
-    torch.save(net.state_dict(), 'model_noSTN-{}-{}-{}.pt'.format(epochs,batchsize,lr))
+    torch.save(net,'model_noSTN-{}-{}-{}.pt'.format(epochs,batchsize,lr))
     print("===================================Training Finished===================================")
 
 
