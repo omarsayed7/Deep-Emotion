@@ -26,44 +26,47 @@ from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.sampler import SubsetRandomSampler
 from sklearn.preprocessing import OneHotEncoder
 from torchvision import transforms
-from tqdm import tqdm
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 '''
 Global variables
 '''
-validation_spli = 0.2
 traincsv_file = 'Dataset/Kaggle/train.csv'
+validationcsv_file = 'Dataset/Kaggle/val.csv'
 testcsv_file = 'Dataset/Kaggle/test.csv'
+
 train_img_dir = 'Train/'
+validation_img_dir = 'validation/'
 test_img_dir = 'test/'
-epochs = 10
-lr = 0.0001
+
+epochs = 50
+lr = 0.005
+batchsize = 128
 
 
 class Plain_Dataset(Dataset):
     def __init__(self,csv_file,img_dir,datatype,transform):
         '''
         Documentation
+        NO OneHot encoding
         '''
-        self.ohe = OneHotEncoder() #one hot encoder object
-        self.train_csv = pd.read_csv(csv_file)
-        self.hot_lables = self.ohe.fit_transform(self.train_csv[['emotion']]).toarray()
+        self.csv_file = pd.read_csv(csv_file)
+        self.lables = self.csv_file['emotion']
         self.img_dir = img_dir
         self.transform = transform
         self.datatype = datatype
 
     def __len__(self):
-        return len(self.train_csv)
+        return len(self.csv_file)
 
     def __getitem__(self,idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
         img = Image.open(self.img_dir+self.datatype+str(idx)+'.jpg')
-        lables = self.hot_lables[idx]
-        lables = torch.from_numpy(lables).float()
+        lables = np.array(self.lables[idx])
+        lables = torch.from_numpy(lables).long()
 
 
         if self.transform :
@@ -72,54 +75,24 @@ class Plain_Dataset(Dataset):
 
         return img,lables
 
-def train_val_split(train_dataset,val_size= 0.25):
-    '''
-    Documentation
-    '''
-    print("===============================Train Validation Split===============================")
-    data_size = len(train_dataset)
-    print("data_size: ",data_size)
 
-    indices = list(range(data_size))
 
-    split_ammount = int(np.floor(val_size * data_size))
-    print("number of val_set: ",split_ammount)
-
-    np.random.seed(42)
-    np.random.shuffle(indices)
-    #print("shuffled training set: ",indices)
-
-    train_indices, val_indices = indices[split_ammount:], indices[:split_ammount]
-
-    print('number of training_indices: ',len(train_indices))
-    print('number of training_indices: ',len(val_indices))
-
-    print("========================================================")
-    #print('training_indices: ',train_indices)
-    #print('validation_indices: ',val_indices)
-    return train_indices, val_indices
-
-def eval_train_dataloader(validation = True):
+def eval_data_dataloader(csv_file,img_dir,datatype,sample_number):
     '''
     Documentation
     '''
 
     transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
+    dataset = Plain_Dataset(csv_file=csv_file,img_dir = img_dir,datatype = datatype,transform = transformation)
 
-    dataset = Plain_Dataset(csv_file=traincsv_file,img_dir = 'Train/',datatype = 'train',transform = transformation)
-
-    imgg = dataset.__getitem__(5)[0]
-    lable = dataset.__getitem__(5)[1]
-
+    lable = dataset.__getitem__(sample_number)[1]
     print(lable)
 
+    imgg = dataset.__getitem__(sample_number)[0]
     imgnumpy = imgg.numpy()
     imgt = imgnumpy.squeeze()
     plt.imshow(imgt)
     plt.show()
-    #press Q to apply train_val split function
-    if validation :
-        train_val_split(dataset,0.2)
 
 class Deep_Emotion(nn.Module):
     def __init__(self):
@@ -172,35 +145,43 @@ def Train():
     '''
     net = Deep_Emotion()
     net.cuda()
+    print("===================================Start Training===================================")
 
+    print("Model archticture: ", net)
     transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
-    train_dataset = Plain_Dataset(csv_file=traincsv_file,img_dir = 'Train/',datatype = 'train',transform = transformation)
 
-    train_indices, validation_indices = train_val_split(train_dataset,0.2)
+    train_dataset =      Plain_Dataset(csv_file=traincsv_file,img_dir = train_img_dir,datatype = 'train',transform = transformation)
+    validation_dataset = Plain_Dataset(csv_file=validationcsv_file,img_dir = validation_img_dir,datatype = 'val',transform = transformation)
+    test_dataset =       Plain_Dataset(csv_file=traincsv_file,img_dir = test_img_dir,datatype = 'test',transform = transformation)
 
-    train_sampler = SubsetRandomSampler(train_indices)
-    val_sampler =  SubsetRandomSampler(validation_indices)
-
-    train_loader = DataLoader(train_dataset,batch_size=64,num_workers=0,sampler=train_sampler)
-    val_loader = DataLoader(train_dataset,batch_size=64,num_workers=0,sampler=val_sampler)
-
+    train_loader = DataLoader(train_dataset,batch_size=batchsize,num_workers=0)
+    val_loader =   DataLoader(validation_dataset,batch_size=batchsize,num_workers=0)
+    test_loader =  DataLoader(test_dataset,batch_size=batchsize,num_workers=0)
 
     criterion = nn.CrossEntropyLoss()
     optmizer = optim.Adam(net.parameters(), lr = lr)
 
-    for e in tqdm(range(epochs)):
+    for e in range(epochs):
         train_loss = 0
         val_loss = 0
+        train_acc_epoch = []
+        val_acc_epoch = []
         # Train the model  #
         net.train()
         for data, lables in train_loader:
             data, lables = data.cuda(), lables.cuda()
-            lables = torch.max(lables, 1)[1]
-
+            #lables = torch.max(lables, 1)[1] if you used onehot encoding
             optmizer.zero_grad()
 
             outputs = net(data)
+            #calculate the accuarcy
+            t_prediction = F.softmax(outputs,dim=1)
+            t_classes = torch.argmax(t_prediction,dim=1)
+            t_wrong = torch.where(t_classes != lables, torch.tensor([1.]).cuda(),torch.tensor([0.]).cuda())
+            t_acc = 1- torch.sum(t_wrong) / batchsize
 
+            train_acc_epoch.append(t_acc.item())
+            #
             loss = criterion(outputs,lables)
             loss.backward()
             optmizer.step()
@@ -211,8 +192,16 @@ def Train():
         for data, lables in val_loader:
             #
             data, lables = data.cuda(), lables.cuda()
-            lables = torch.max(lables, 1)[1]
+            #lables = torch.max(lables, 1)[1] if you used onehot encoding
             outputs = net(data)
+            #calculate the accuarcy
+            v_prediction = F.softmax(outputs,dim=1)
+            v_classes = torch.argmax(v_prediction,dim=1)
+            v_wrong = torch.where(v_classes != lables, torch.tensor([1.]).cuda(),torch.tensor([0.]).cuda())
+            v_acc = 1- torch.sum(v_wrong) / batchsize
+
+            val_acc_epoch.append(v_acc.item())
+            #
 
             loss = criterion(outputs, lables)
 
@@ -220,8 +209,11 @@ def Train():
 
         train_loss = train_loss/len(train_loader.sampler)
         val_loss = val_loss/len(val_loader.sampler)
-        print('Epoch: {} \tTraining Loss: {:.8f} \tValidation Loss {:.8f}'.format(e+1, train_loss,val_loss))
+        print('Epoch: {} \tTraining Loss: {:.8f} \tValidation Loss {:.8f} \tTraining Acuuarcy {:.3f}% \tValidation Acuuarcy {:.3f}%'
+                                                            .format(e+1, train_loss,val_loss,np.mean(train_acc_epoch)*100,np.mean(val_acc_epoch)*100))
 
-    torch.save(net.state_dict(), 'model_noSTN.pt')
+    torch.save(net.state_dict(), 'model_noSTN-{}-{}-{}.pt'.format(epochs,batchsize,lr))
+    print("===================================Training Finished===================================")
+
 
 Train()
