@@ -3,6 +3,20 @@ import numpy as np
 from PIL import Image
 import os
 from tqdm import tqdm
+'''
+train = 28709 imgs
+private val =
+public test = 3589
+'''
+def split_test_file(csv_path):
+    """
+    note that you have to split the public and private from fer2013 file
+    """
+    test = pd.read_csv(csv_path)
+    test_data = pd.DataFrame(test.iloc[:3589,:])
+    validation_data = pd.DataFrame(test.iloc[3589:,:])
+    test.to_csv("Test.csv")
+    val.to_csv('val.csv')
 
 def str_to_image(str_img = ' '):
     '''
@@ -30,5 +44,6 @@ def save_images(csvfile_path, column_pixels_name = ' ',foldername='',datatype='t
     print('Done saving {} data'.format((foldername)))
 
 if __name__ == "__main__" :
-    save_images(csvfile_path='F:/My_Stuff/1-MOOCS/AI/Deep Learning Notes/emotion detection/Dataset/Kaggle/train.csv',column_pixels_name='pixels',foldername='train')
-    save_images(csvfile_path='F:/My_Stuff/1-MOOCS/AI/Deep Learning Notes/emotion detection/Dataset/Kaggle/test.csv',column_pixels_name='pixels',foldername='test')
+    split_test_file("F:/My_Stuff/1-MOOCS/AI/Deep Learning Notes/emotion detection/Dataset/Kaggle/test.csv")
+    save_images(csvfile_path='F:/My_Stuff/1-MOOCS/AI/Deep Learning Notes/emotion detection/Dataset/Kaggle/val.csv',column_pixels_name='pixels',foldername='validation',datatype='val')
+    save_images(csvfile_path='F:/My_Stuff/1-MOOCS/AI/Deep Learning Notes/emotion detection/Dataset/Kaggle/test.csv',column_pixels_name='pixels',foldername='test',datatype='test')
