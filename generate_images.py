@@ -12,7 +12,7 @@ def str_to_image(str_img = ' '):
     imgarray = np.asarray(imgarray_str,dtype=np.uint8).reshape(48,48)
     return Image.fromarray(imgarray)
 
-def save_images(csvfile_path, column_pixels_name = ' ',foldername=''):
+def save_images(csvfile_path, column_pixels_name = ' ',foldername='',datatype='train'):
     '''
     csvfile_path == path to csv file of the training data e.g train.csv
     column_pixels_name == column name of the pixels images e.g 'pixels'
@@ -26,7 +26,7 @@ def save_images(csvfile_path, column_pixels_name = ' ',foldername=''):
     numberofimages = images.shape[0]
     for index in tqdm(range(numberofimages)):
         img = str_to_image(images[index])
-        img.save(os.path.join(foldername,'train{}.jpg'.format(index)),'JPEG')
+        img.save(os.path.join(foldername,'{}{}.jpg'.format(datatype,index)),'JPEG')
     print('Done saving {} data'.format((foldername)))
 
 if __name__ == "__main__" :

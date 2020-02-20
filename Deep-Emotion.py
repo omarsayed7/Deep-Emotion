@@ -39,7 +39,7 @@ testcsv_file = 'Dataset/Kaggle/test.csv'
 train_img_dir = 'Train/'
 test_img_dir = 'test/'
 epochs = 10
-lr = 0.001
+lr = 0.0001
 
 
 class Plain_Dataset(Dataset):
