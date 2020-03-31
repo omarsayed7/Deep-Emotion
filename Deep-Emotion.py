@@ -26,6 +26,7 @@ from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.sampler import SubsetRandomSampler
 from sklearn.preprocessing import OneHotEncoder
 from torchvision import transforms
+from data_loaders import Plain_Dataset, eval_data_dataloader
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -113,10 +114,6 @@ def Train():
     '''
     Documentation
     '''
-
-    '''
-    Load the data inform of iterator (Dataloader) but here we will use SubsetRandomSampler to split train into train and validation
-    '''
     net = Deep_Emotion()
     net.to(device)
     print("===================================Start Training===================================")
@@ -126,11 +123,9 @@ def Train():
 
     train_dataset =      Plain_Dataset(csv_file=traincsv_file,img_dir = train_img_dir,datatype = 'train',transform = transformation)
     validation_dataset = Plain_Dataset(csv_file=validationcsv_file,img_dir = validation_img_dir,datatype = 'val',transform = transformation)
-    test_dataset =       Plain_Dataset(csv_file=traincsv_file,img_dir = test_img_dir,datatype = 'test',transform = transformation)
 
     train_loader = DataLoader(train_dataset,batch_size=batchsize,num_workers=0)
     val_loader =   DataLoader(validation_dataset,batch_size=batchsize,num_workers=0)
-    test_loader =  DataLoader(test_dataset,batch_size=batchsize,num_workers=0)
 
     criterion = nn.CrossEntropyLoss()
     optmizer = optim.Adam(net.parameters(), lr = lr)
