@@ -118,7 +118,7 @@ def Train():
     Load the data inform of iterator (Dataloader) but here we will use SubsetRandomSampler to split train into train and validation
     '''
     net = Deep_Emotion()
-    net.cuda()
+    net.to(device)
     print("===================================Start Training===================================")
 
     print("Model archticture: ", net)
@@ -143,7 +143,7 @@ def Train():
         # Train the model  #
         net.train()
         for data, lables in train_loader:
-            data, lables = data.cuda(), lables.cuda()
+            data, lables = data.to(device), lables.to(device)
             #lables = torch.max(lables, 1)[1] if you used onehot encoding
             optmizer.zero_grad()
 
@@ -165,7 +165,7 @@ def Train():
         net.eval()
         for data, lables in val_loader:
             #
-            data, lables = data.cuda(), lables.cuda()
+            data, lables = data.to(device), lables.to(device)
             #lables = torch.max(lables, 1)[1] if you used onehot encoding
             outputs = net(data)
             #calculate the accuarcy
