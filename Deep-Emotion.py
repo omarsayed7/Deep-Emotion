@@ -132,57 +132,49 @@ def Train():
 
     for e in range(epochs):
         train_loss = 0
-        val_loss = 0
-        train_acc_epoch = []
-        val_acc_epoch = []
+        validation_loss = 0
+
+        train_correct = 0
+        val_correct = 0
         # Train the model  #
         net.train()
-        for data, lables in train_loader:
-            data, lables = data.to(device), lables.to(device)
-            #lables = torch.max(lables, 1)[1] if you used onehot encoding
+        for data, labels in train_loader:
+            data, labels = data.to(device), labels.to(device)
             optmizer.zero_grad()
 
             outputs = net(data)
-            #calculate the accuarcy
-            t_prediction = F.softmax(outputs,dim=1)
-            t_classes = torch.argmax(t_prediction,dim=1)
-            t_wrong = torch.where(t_classes != lables, torch.tensor([1.]).cuda(),torch.tensor([0.]).cuda())
-            t_acc = 1- torch.sum(t_wrong) / batchsize
-
-            train_acc_epoch.append(t_acc.item())
-            #
-            loss = criterion(outputs,lables)
+            loss = criterion(outputs,labels)
             loss.backward()
             optmizer.step()
-            train_loss += loss.item() * data.size(0)
+
+            train_loss += loss.item()
+            _,preds = torch.max(outputs,1)
+            train_correct += torch.sum(preds == labels.data)
 
         # validate the model #
         net.eval()
-        for data, lables in val_loader:
+        for data, labels in val_loader:
             #
-            data, lables = data.to(device), lables.to(device)
+            data, labels = data.to(device), labels.to(device)
             #lables = torch.max(lables, 1)[1] if you used onehot encoding
-            outputs = net(data)
-            #calculate the accuarcy
-            v_prediction = F.softmax(outputs,dim=1)
-            v_classes = torch.argmax(v_prediction,dim=1)
-            v_wrong = torch.where(v_classes != lables, torch.tensor([1.]).cuda(),torch.tensor([0.]).cuda())
-            v_acc = 1- torch.sum(v_wrong) / batchsize
+            val_outputs = net(data)
+            val_loss = criterion(val_outputs, labels)
+            validation_loss += val_loss.item()
 
-            val_acc_epoch.append(v_acc.item())
-            #
+            _,val_preds = torch.max(validation_loss, 1)
+            val_correct += torch.sum(val_preds == labels.data)
 
-            loss = criterion(outputs, lables)
 
-            val_loss += loss.item() * data.size(0)
+        train_loss = train_loss/len(train_dataset)
+        train_acc = train_correct.double() / len(train_dataset)
 
-        train_loss = train_loss/len(train_loader.sampler)
-        val_loss = val_loss/len(val_loader.sampler)
+        validation_loss =  validation_loss / len(validation_dataset)
+        val_acc = val_correct.double() / len(validation_dataset)
         print('Epoch: {} \tTraining Loss: {:.8f} \tValidation Loss {:.8f} \tTraining Acuuarcy {:.3f}% \tValidation Acuuarcy {:.3f}%'
-                                                            .format(e+1, train_loss,val_loss,np.mean(train_acc_epoch)*100,np.mean(val_acc_epoch)*100))
+                                                           .format(e+1, train_loss,validation_loss,train_acc * 100, val_acc*100))
 
-    torch.save(net,'model_noSTN-{}-{}-{}.pt'.format(epochs,batchsize,lr))
+    torch.save(net.state_dict(),'model_noSTN-{}-{}-{}.pth'.format(epochs,batchsize,lr))
     print("===================================Training Finished===================================")
 
-
-Train()
+if __name__ == '__main__':
+    Train()
