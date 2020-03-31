@@ -132,7 +132,7 @@ def Train():
 
     for e in range(epochs):
         train_loss = 0
-        val_loss = 0
+        validation_loss = 0
 
         train_correct = 0
         val_correct = 0
@@ -155,7 +155,7 @@ def Train():
             data, labels = data.to(device), labels.to(device)
             val_outputs = net(data)
             val_loss = criterion(val_outputs, labels)
-            val_loss += val_loss.item()
+            validation_loss += val_loss.item()
 
             _, val_preds = torch.max(val_outputs,1)
             val_correct += torch.sum(val_preds == labels.data)
@@ -163,11 +163,11 @@ def Train():
         train_loss = train_loss/len(train_dataset)
         train_acc = train_correct.double() / len(train_dataset)
 
-        val_loss =  val_loss / len(validation_dataset)
+        validation_loss =  validation_loss / len(validation_dataset)
         val_acc = val_correct.double() / len(validation_dataset)
 
         print('Epoch: {} \tTraining Loss: {:.8f} \tValidation Loss {:.8f} \tTraining Acuuarcy {:.3f}% \tValidation Acuuarcy {:.3f}%'
-                                                           .format(e+1, train_loss,val_loss,train_acc * 100, val_acc*100))
+                                                           .format(e+1, train_loss,validation_loss,train_acc * 100, val_acc*100))
 
     torch.save(net.state_dict(),'model_noSTN-{}-{}-{}.pt'.format(epochs,batchsize,0.001))
     print("===================================Training Finished===================================")
