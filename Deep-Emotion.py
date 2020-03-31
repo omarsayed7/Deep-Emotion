@@ -75,8 +75,6 @@ class Plain_Dataset(Dataset):
 
         return img,lables
 
-
-
 def eval_data_dataloader(csv_file,img_dir,datatype,sample_number):
     '''
     Documentation
