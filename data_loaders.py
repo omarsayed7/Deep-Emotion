@@ -40,7 +40,7 @@ class Plain_Dataset(Dataset):
         return img,lables
 
 #Helper function
-def eval_data_dataloader(csv_file,img_dir,datatype,sample_number):
+def eval_data_dataloader(csv_file,img_dir,datatype,sample_number,transform= None):
     '''
     Helper function used to evaluate the Dataset class
     params:-
@@ -49,13 +49,12 @@ def eval_data_dataloader(csv_file,img_dir,datatype,sample_number):
             datatype : string for searching along the image_dir (train, val, test)
             sample_number : any number from the data to be shown
     '''
+    if transform is None :
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
+    dataset = Plain_Dataset(csv_file=csv_file,img_dir = img_dir,datatype = datatype,transform = transform)
 
-    transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
-    dataset = Plain_Dataset(csv_file=csv_file,img_dir = img_dir,datatype = datatype,transform = transformation)
-
-    lable = dataset.__getitem__(sample_number)[1]
-    print(lable)
-
+    label = dataset.__getitem__(sample_number)[1]
+    print(label)
     imgg = dataset.__getitem__(sample_number)[0]
     imgnumpy = imgg.numpy()
     imgt = imgnumpy.squeeze()
