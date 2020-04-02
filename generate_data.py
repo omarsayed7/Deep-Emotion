@@ -39,7 +39,7 @@ class Generate_data():
         imgarray = np.asarray(imgarray_str,dtype=np.uint8).reshape(48,48)
         return Image.fromarray(imgarray)
 
-    def save_images(self, csvfile_path, column_pixels_name = ' ',foldername='',datatype='train'):
+    def save_images(self, csvfile_path, foldername='', datatype='train'):
         '''
         save_images is a function responsible for saving images from data files e.g(train, test) in a desired folder
             params:-
@@ -51,7 +51,7 @@ class Generate_data():
             os.mkdir(foldername)
 
         data = pd.read_csv(csvfile_path)
-        images = data[column_pixels_name] #dataframe to series pandas
+        images = data['pixels'] #dataframe to series pandas
         numberofimages = images.shape[0]
         for index in tqdm(range(numberofimages)):
             img = self.str_to_image(images[index])
