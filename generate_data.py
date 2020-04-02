@@ -43,9 +43,9 @@ class Generate_data():
         '''
         save_images is a function responsible for saving images from data files e.g(train, test) in a desired folder
             params:-
-            csvfile_path = path to csv file of the data e.g train.csv, val.csv, test.csv
-            column_pixels_name = column name of the pixels images e.g 'pixels'
-            foldername = name of the folder to save the images in
+            csvfile_path= path to csv file of the data e.g train.csv, val.csv, test.csv
+            foldername= name of the folder to save the images in
+            datatype= str e.g (train, val, test)
         '''
         if not os.path.exists(foldername):
             os.mkdir(foldername)
