@@ -1,3 +1,5 @@
+from __future__ import print_function
+import argparse
 import numpy  as np
 from PIL import Image
 import torch
@@ -14,25 +16,6 @@ from deep_emotion import Deep_Emotion
 from generate_data import Generate_data
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-
-
-'''
-Global variables
-'''
-traincsv_file = 'Dataset/Kaggle/train.csv'
-validationcsv_file = 'Dataset/Kaggle/val.csv'
-testcsv_file = 'Dataset/Kaggle/test.csv'
-
-train_img_dir = 'Train/'
-validation_img_dir = 'validation/'
-test_img_dir = 'test/'
-
-epochs = 100
-lr = 0.005
-batchsize = 128
-
-
 
 def Train(epochs,train_loader,val_loader,criterion,optmizer,device):
     '''
@@ -79,20 +62,49 @@ def Train(epochs,train_loader,val_loader,criterion,optmizer,device):
 
 
 if __name__ == '__main__':
-    generate_dataset = Generate_data()
-    generate_dataset.split_test()
-    generate_dataset.save_images()
+    parser = argparse.ArgumentParser(description="configuration of setup and training process")
+    parser.add_argument('-s', '--setup', type=bool, help='setup the dataset for the first time')
+    parser.add_argument('-d', '--data', type=str,required= True, help='data folder that contains data files that downloaded from kaggle (train.csv and test.csv)')
+    parser.add_argument('-hparams', '--hyperparams', type=bool, help='True when changing the hyperparameters e.g (batch size, LR, num. of epochs)')
+    parser.add_argument('-e', '--epochs', type= int, help= 'number of epochs')
+    parser.add_argument('-lr', '--learning_rate', type= float, help= 'value of learning rate')
+    parser.add_argument('-bs', '--batch_size', type= int, help= 'training/validation batch size')
+    parser.add_argument('-t', '--train', type=bool, help='True when training')
+    args = parser.parse_args()
 
-    net = Deep_Emotion()
-    net.to(device)
-    print("Model archticture: ", net)
+    if args.setup :
+        generate_dataset = Generate_data(args.data)
+        generate_dataset.split_test()
+        generate_dataset.save_images()
+        generate_dataset.save_images('finaltest')
+        generate_dataset.save_images('val')
 
-    transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
-    train_dataset =      Plain_Dataset(csv_file=traincsv_file,img_dir = train_img_dir,datatype = 'train',transform = transformation)
-    validation_dataset = Plain_Dataset(csv_file=validationcsv_file,img_dir = validation_img_dir,datatype = 'val',transform = transformation)
-    train_loader = DataLoader(train_dataset,batch_size=batchsize,shuffle = True,num_workers=0)
-    val_loader =   DataLoader(validation_dataset,batch_size=batchsize,shuffle = True,num_workers=0)
+    if args.hyperparams:
+        epochs = args.epochs
+        lr = args.learning_rate
+        batchsize = args.batch_size
+    else :
+        epochs = 100
+        lr = 0.005
+        batchsize = 128
 
-    criterion = nn.CrossEntropyLoss()
-    optmizer = optim.Adam(net.parameters(),lr= lr)
-    Train(epochs, train_loader, val_loader, criterion, optmizer, device)
+    if args.train:
+        net = Deep_Emotion()
+        net.to(device)
+        print("Model archticture: ", net)
+        traincsv_file = args.data+'/'+'train.csv'
+        validationcsv_file = args.data+'/'+'val.csv'
+        testcsv_file = args.data+'/'+'finaltest.csv'
+        train_img_dir = args.data+'/'+'train/'
+        validation_img_dir = args.data+'/'+'validation/'
+        test_img_dir = args.data+'/'+'test/'
+
+        transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
+        train_dataset =      Plain_Dataset(csv_file=traincsv_file, img_dir = train_img_dir, datatype = 'train', transform = transformation)
+        validation_dataset = Plain_Dataset(csv_file=validationcsv_file, img_dir = validation_img_dir, datatype = 'val', transform = transformation)
+        train_loader = DataLoader(train_dataset,batch_size=batchsize,shuffle = True,num_workers=0)
+        val_loader =   DataLoader(validation_dataset,batch_size=batchsize,shuffle = True,num_workers=0)
+
+        criterion = nn.CrossEntropyLoss()
+        optmizer = optim.Adam(net.parameters(),lr= lr)
+        Train(epochs, train_loader, val_loader, criterion, optmizer, device)

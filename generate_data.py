@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pandas as pd
 import numpy as np
 from PIL import Image
@@ -6,7 +7,7 @@ from tqdm import tqdm
 
 
 class Generate_data():
-    def __init__(self):
+    def __init__(self, datapath):
         """
         Generate_data class
         Two methods to be used
@@ -14,20 +15,21 @@ class Generate_data():
         2-save_images
         [Note] that you have to split the public and private from fer2013 file
         """
-        pass
+        self.data_path = datapath
 
-    def split_test(self, csv_path,test_filename = 'test', val_filename= 'val'):
+    def split_test(self, test_filename = 'finaltest', val_filename= 'val'):
         """
         Helper function to split the validation and test data from general test file as it contains (Public test, Private test)
             params:-
-                csv_path = path to csv file of the test data
-                test_filename, val_filename = desired name of the new saved files
+                data_path = path to the folder that contains the test data file
         """
+        csv_path = self.data_path +"/"+ 'test.csv'
         test = pd.read_csv(csv_path)
         test_data = pd.DataFrame(test.iloc[:3589,:])
         validation_data = pd.DataFrame(test.iloc[3589:,:])
-        test.to_csv(test_filename+".csv")
-        val.to_csv(val_filename+".csv")
+        test.to_csv(self.data_path+"/"+test_filename+".csv")
+        validation_data.to_csv(self.data_path+"/"+val_filename+".csv")
+        print("Done splitting the test file into validation & final test file")
 
     def str_to_image(self, str_img = ' '):
         '''
@@ -39,14 +41,14 @@ class Generate_data():
         imgarray = np.asarray(imgarray_str,dtype=np.uint8).reshape(48,48)
         return Image.fromarray(imgarray)
 
-    def save_images(self, csvfile_path, foldername='', datatype='train'):
+    def save_images(self, datatype='train'):
         '''
         save_images is a function responsible for saving images from data files e.g(train, test) in a desired folder
             params:-
-            csvfile_path= path to csv file of the data e.g train.csv, val.csv, test.csv
-            foldername= name of the folder to save the images in
-            datatype= str e.g (train, val, test)
+            datatype= str e.g (train, val, finaltest)
         '''
+        foldername= self.data_path+"/"+datatype
+        csvfile_path= self.data_path+"/"+datatype+'.csv'
         if not os.path.exists(foldername):
             os.mkdir(foldername)
 
