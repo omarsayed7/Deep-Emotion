@@ -71,5 +71,5 @@ python visualize.py [-t] [-c] [--data [data_path]] [--model [model_path]]
 ```
 ## Prediction Samples
 <p align="center">
-  <img src="imgs/net_arch.png" width="640" title="Deep-Emotion Architecture">
+  <img src="imgs/samples.png" width="640" title="Deep-Emotion Architecture">
 </p>
