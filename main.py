@@ -94,10 +94,8 @@ if __name__ == '__main__':
         print("Model archticture: ", net)
         traincsv_file = args.data+'/'+'train.csv'
         validationcsv_file = args.data+'/'+'val.csv'
-        testcsv_file = args.data+'/'+'finaltest.csv'
         train_img_dir = args.data+'/'+'train/'
         validation_img_dir = args.data+'/'+'val/'
-        test_img_dir = args.data+'/'+'test/'
 
         transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
         train_dataset =      Plain_Dataset(csv_file=traincsv_file, img_dir = train_img_dir, datatype = 'train', transform = transformation)
