@@ -96,7 +96,7 @@ if __name__ == '__main__':
         validationcsv_file = args.data+'/'+'val.csv'
         testcsv_file = args.data+'/'+'finaltest.csv'
         train_img_dir = args.data+'/'+'train/'
-        validation_img_dir = args.data+'/'+'validation/'
+        validation_img_dir = args.data+'/'+'val/'
         test_img_dir = args.data+'/'+'test/'
 
         transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
