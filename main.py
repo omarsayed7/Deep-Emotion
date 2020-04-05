@@ -65,8 +65,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Configuration of setup and training process")
     parser.add_argument('-s', '--setup', type=bool, help='setup the dataset for the first time')
     parser.add_argument('-d', '--data', type=str,required= True,
-                                                help='data folder that contains data files that downloaded from kaggle (train.csv and test.csv)')
-    parser.add_argument('-hparams', '--hyperparams', type=bool, help='True when changing the hyperparameters e.g (batch size, LR, num. of epochs)')
+                               help='data folder that contains data files that downloaded from kaggle (train.csv and test.csv)')
+    parser.add_argument('-hparams', '--hyperparams', type=bool,
+                               help='True when changing the hyperparameters e.g (batch size, LR, num. of epochs)')
     parser.add_argument('-e', '--epochs', type= int, help= 'number of epochs')
     parser.add_argument('-lr', '--learning_rate', type= float, help= 'value of learning rate')
     parser.add_argument('-bs', '--batch_size', type= int, help= 'training/validation batch size')
@@ -98,12 +99,12 @@ if __name__ == '__main__':
         train_img_dir = args.data+'/'+'train/'
         validation_img_dir = args.data+'/'+'val/'
 
-        transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
-        train_dataset =      Plain_Dataset(csv_file=traincsv_file, img_dir = train_img_dir, datatype = 'train', transform = transformation)
-        validation_dataset = Plain_Dataset(csv_file=validationcsv_file, img_dir = validation_img_dir, datatype = 'val', transform = transformation)
-        train_loader = DataLoader(train_dataset,batch_size=batchsize,shuffle = True,num_workers=0)
-        val_loader =   DataLoader(validation_dataset,batch_size=batchsize,shuffle = True,num_workers=0)
+        transformation= transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
+        train_dataset= Plain_Dataset(csv_file=traincsv_file, img_dir = train_img_dir, datatype = 'train', transform = transformation)
+        validation_dataset= Plain_Dataset(csv_file=validationcsv_file, img_dir = validation_img_dir, datatype = 'val', transform = transformation)
+        train_loader= DataLoader(train_dataset,batch_size=batchsize,shuffle = True,num_workers=0)
+        val_loader=   DataLoader(validation_dataset,batch_size=batchsize,shuffle = True,num_workers=0)
 
-        criterion = nn.CrossEntropyLoss()
-        optmizer = optim.Adam(net.parameters(),lr= lr)
+        criterion= nn.CrossEntropyLoss()
+        optmizer= optim.Adam(net.parameters(),lr= lr)
         Train(epochs, train_loader, val_loader, criterion, optmizer, device)
