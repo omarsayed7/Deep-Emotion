@@ -8,7 +8,7 @@ This is a PyTorch implementation of research paper, [Deep-Emotion](https://arxiv
 
 
 <p align="center">
-  <img src="imgs/net_arch.png" width="640" title="Deep-Emotion Architecture">
+  <img src="imgs/net_arch.PNG" width="640" title="Deep-Emotion Architecture">
 </p>
 
 

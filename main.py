@@ -64,7 +64,8 @@ def Train(epochs,train_loader,val_loader,criterion,optmizer,device):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="configuration of setup and training process")
     parser.add_argument('-s', '--setup', type=bool, help='setup the dataset for the first time')
-    parser.add_argument('-d', '--data', type=str,required= True, help='data folder that contains data files that downloaded from kaggle (train.csv and test.csv)')
+    parser.add_argument('-d', '--data', type=str,required= True,
+                                                help='data folder that contains data files that downloaded from kaggle (train.csv and test.csv)')
     parser.add_argument('-hparams', '--hyperparams', type=bool, help='True when changing the hyperparameters e.g (batch size, LR, num. of epochs)')
     parser.add_argument('-e', '--epochs', type= int, help= 'number of epochs')
     parser.add_argument('-lr', '--learning_rate', type= float, help= 'value of learning rate')
