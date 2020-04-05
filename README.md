@@ -8,7 +8,7 @@ This is a PyTorch implementation of research paper, [Deep-Emotion](https://arxiv
 
 
 <p align="center">
-  <img src="imgs/net_arch.PNG" width="720" title="Deep-Emotion Architecture">
+  <img src="imgs/net_arch.PNG" width="960" title="Deep-Emotion Architecture">
 </p>
 
 
@@ -28,7 +28,7 @@ To run this code, you need to have the following libraries:
 
 ## Structure of this repository
 This repository is organized as :
-* [main](/main.py) This file contains setup of the dataset and training loop, the experimented dataset is [FER2013]().
+* [main](/main.py) This file contains setup of the dataset and training loop.
 * [visualize](/visualize.py) This file contains the source code for evaluating the model on test data and real-time testing on webcam.
 * [deep_emotion](/deep_emotion.py) This file contains the model class
 * [data_loaders](/data_loaders.py) This file contains the dataset class
