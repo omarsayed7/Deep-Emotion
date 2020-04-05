@@ -8,7 +8,7 @@ This is a PyTorch implementation of research paper, [Deep-Emotion](https://arxiv
 
 
 <p align="center">
-  <img src="imgs/net_arch.PNG" width="640" title="Deep-Emotion Architecture">
+  <img src="imgs/net_arch.PNG" width="720" title="Deep-Emotion Architecture">
 </p>
 
 
@@ -36,7 +36,7 @@ This repository is organized as :
 
 ## Usage
 ### Data preparation
-Download the dataset from [Kaggle](), and decompress ```train.csv``` and ```test.csv``` into ```./data``` folder.
+Download the dataset from [Kaggle](https://www.kaggle.com/c/challenges-in-representation-learning-facial-expression-recognition-challenge/data), and decompress ```train.csv``` and ```test.csv``` into ```./data``` folder.
 
 ### How to run
 **Setup the dataset**
@@ -71,5 +71,5 @@ python visualize.py [-t] [-c] [--data [data_path]] [--model [model_path]]
 ```
 ## Prediction Samples
 <p align="center">
-  <img src="imgs/samples.png" width="640" title="Deep-Emotion Architecture">
+  <img src="imgs/samples.png" width="720" title="Deep-Emotion Architecture">
 </p>
