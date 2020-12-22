@@ -1,6 +1,7 @@
 # Deep-Emotion: Facial Expression Recognition Using Attentional Convolutional Network
 
 This is a PyTorch implementation of research paper, [Deep-Emotion](https://arxiv.org/abs/1902.01019)
+[Note] This is not the official implementation of the paper
 
 ## Architecture
 * An end-to-end deep learning framework, based on attentional convolutional network
