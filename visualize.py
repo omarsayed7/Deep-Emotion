@@ -22,7 +22,7 @@ parser.add_argument('-c', '--cam', type=bool, help='Test the model in real time 
 args = parser.parse_args()
 
 transformation = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5,),(0.5,))])
-dataset = Plain_Dataset(csv_file=args.data+'/finaltest.csv',img_dir = args.data+'/'+'finaltest/',datatype = 'finaltest',transform = transformation)
+dataset = Plain_Dataset(csv_file=args.data+'/test.csv',img_dir = args.data+'/'+'test/',datatype = 'finaltest',transform = transformation)
 test_loader =  DataLoader(dataset,batch_size=64,num_workers=0)
 
 net = Deep_Emotion()
