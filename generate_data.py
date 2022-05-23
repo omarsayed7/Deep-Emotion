@@ -17,17 +17,17 @@ class Generate_data():
         """
         self.data_path = datapath
 
-    def split_test(self, test_filename = 'finaltest', val_filename= 'val'):
+    def split_test(self, val_filename= 'val'):
         """
-        Helper function to split the validation and test data from general test file as it contains (Public test, Private test)
+        Helper function to split the validation and train data from general train file.
             params:-
-                data_path = path to the folder that contains the test data file
+                data_path = path to the folder that contains the train data file
         """
-        csv_path = self.data_path +"/"+ 'test.csv'
-        test = pd.read_csv(csv_path)
-        validation_data = pd.DataFrame(test.iloc[:3589,:])
-        test_data = pd.DataFrame(test.iloc[3589:,:])
-        test_data.to_csv(self.data_path+"/"+test_filename+".csv")
+        train_csv_path = self.data_path +"/"+ 'train.csv'
+        train = pd.read_csv(train_csv_path)
+        validation_data = pd.DataFrame(train.iloc[:3589,:])
+        train_data = pd.DataFrame(train.iloc[3589:,:])
+        train_data.to_csv(self.data_path+"/"+train+".csv")
         validation_data.to_csv(self.data_path+"/"+val_filename+".csv")
         print("Done splitting the test file into validation & final test file")
 
@@ -45,7 +45,7 @@ class Generate_data():
         '''
         save_images is a function responsible for saving images from data files e.g(train, test) in a desired folder
             params:-
-            datatype= str e.g (train, val, finaltest)
+            datatype= str e.g (train, val, test)
         '''
         foldername= self.data_path+"/"+datatype
         csvfile_path= self.data_path+"/"+datatype+'.csv'
