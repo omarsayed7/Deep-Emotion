@@ -83,8 +83,8 @@ if __name__ == '__main__':
     if args.setup :
         generate_dataset = Generate_data(args.data)
         generate_dataset.split_test()
-        generate_dataset.save_images()
-        generate_dataset.save_images('finaltest')
+        generate_dataset.save_images('train')
+        generate_dataset.save_images('test')
         generate_dataset.save_images('val')
 
     if args.hyperparams:
