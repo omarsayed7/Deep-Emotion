@@ -54,7 +54,7 @@ def Train(epochs,train_loader,val_loader,criterion,optmizer,device):
         train_acc = train_correct.double() / len(train_dataset)
         validation_loss =  validation_loss / len(validation_dataset)
         val_acc = val_correct.double() / len(validation_dataset)
-        print('Epoch: {} \tTraining Loss: {:.8f} \tValidation Loss {:.8f} \tTraining Acuuarcy {:.3f}% \tValidation Acuuarcy {:.3f}%'
+        print('Epoch: {} \tTraining Loss: {:.8f} \tValidation Loss {:.8f} \tTraining Accuracy {:.3f}% \tValidation Accuracy {:.3f}%'
                                                            .format(e+1, train_loss,validation_loss,train_acc * 100, val_acc*100))
 
     torch.save(net.state_dict(),'deep_emotion-{}-{}-{}.pt'.format(epochs,batchsize,lr))
